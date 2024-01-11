@@ -1,0 +1,4 @@
+(executable
+ (public_name oed)
+ (name main)
+ (libraries tsdl))
