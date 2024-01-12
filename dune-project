@@ -19,7 +19,7 @@
  (name oed)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune tsdl)
+ (depends ocaml dune)
  (tags
   (topics "to describe" your project)))
 
