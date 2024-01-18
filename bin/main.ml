@@ -15,6 +15,7 @@ let rec main_loop (ed : Mode.editor) (w : Curses.window) =
       ()
 
 let () =
+  Curses.use_env true;
   let w = Curses.initscr () in
   assert (Curses.cbreak ());
   assert (Curses.noecho ());
