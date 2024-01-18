@@ -12,6 +12,7 @@ bug-reports: "https://github.com/pawel-kojma/oed/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.10"}
+  "curses"
   "odoc" {with-doc}
 ]
 build: [

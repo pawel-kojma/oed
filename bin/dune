@@ -1,4 +1,4 @@
 (executable
  (public_name oed)
  (name main)
- (libraries oed))
+ (libraries oed curses))

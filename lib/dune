@@ -1,2 +1,3 @@
 (library
- (name oed))
+ (name oed)
+ (libraries  curses))
