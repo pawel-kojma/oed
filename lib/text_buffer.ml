@@ -41,9 +41,9 @@ module type S = sig
   val right : container -> container
   val up : container -> container
   val down : container -> container
-  val prev_newline_offset : container -> (int, int) Either.t
-  val next_newline_offset : container -> (int, int) Either.t
-  val get_at_cursor : container -> char
+  val prev_nl_off : container -> int
+  val next_nl_off : container -> int
+  val get_at_cursor : container -> char option
   val set_at_cursor : char -> container -> container
 end
 
@@ -57,22 +57,51 @@ module Make (DS : TextEditDataStructure) = struct
   let remove = DS.remove
   let left = DS.move_left
   let right = DS.move_right
+  let create_empty = DS.empty
 
   let rec find_newline c acc move =
     match DS.elem c with
-    | None -> Either.left acc
-    | Some x when x == '\n' -> Either.right acc
+    | None -> acc
+    | Some x when x == '\n' -> acc
     | _ -> find_newline (move c) (acc + 1) move
 
-  let rec apply b f n = if n <= 0 then b else apply (f b) g (n - 1)
-  let prev_newline_offset c = find_newline c 0 DS.move_left
-  let next_newline_offset c = find_newline c 0 DS.move_right
+  let prev_nl_off c = find_newline c 0 left
+  let next_nl_off c = find_newline c 0 right
+  let is_eq c ch = match DS.elem c with None -> false | Some x -> x == ch
 
   let start_of_line c =
     if DS.is_begin c then true
     else
-      match DS.move_left c |> DS.elem with None -> false | Some x -> x == '\n'
+      match left c |> DS.elem with
+      | None -> failwith "shouldn't be raised"
+      | Some x -> x == '\n'
 
-  let get_at_cursor c = DS.elem c
-  let set_at_cursor ch c = DS.remove c |> DS.insert ch c
+  let end_of_line c = if DS.is_end c then true else right c |> start_of_line
+
+  let line_length c =
+    let l1 = next_nl_off c in
+    let l2 = right c |> prev_nl_off in
+    l1 + l2 + 1
+
+  let to_sol c =
+    if start_of_line c then 0
+    else if is_eq c '\n' then prev_nl_off (left c)
+    else prev_nl_off c
+
+  let to_eol c = if end_of_line c then 0 else next_nl_off c
+
+  let up c =
+    let off = to_sol c in
+    let new_c = DS.move_left_n c (off + 1) in
+    let ll = line_length new_c in
+    if ll > off then DS.move_left_n (left new_c) (ll - off) else new_c
+
+  let down c =
+    let off = to_eol c in
+    let new_c = DS.move_right_n c (off + 1) in
+    let ll = line_length new_c in
+    if ll > off then DS.move_right_n new_c (ll - off) else new_c
+
+  let get_at_cursor = DS.elem
+  let set_at_cursor ch c = remove c |> insert ch
 end

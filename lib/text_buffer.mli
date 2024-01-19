@@ -41,9 +41,9 @@ module type S = sig
   val right : container -> container
   val up : container -> container
   val down : container -> container
-  val prev_newline_offset : container -> option int
-  val next_newline_offset : container -> option int
-  val get_at_cursor : container -> char
+  val prev_nl_off : container -> int
+  val next_nl_off : container -> int
+  val get_at_cursor : container -> char option
   val set_at_cursor : char -> container -> container
 end
 
