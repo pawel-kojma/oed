@@ -19,7 +19,7 @@ let insert_mode_action editor window key =
           ()
       | Enter when y + 1 >= maxy ->
           assert (Curses.scroll window);
-          assert(Curses.move y 0);
+          assert (Curses.move y 0);
           ()
       | Enter when y + 1 < maxy ->
           assert (Curses.addstr "\n");

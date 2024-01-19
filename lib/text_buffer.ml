@@ -15,9 +15,9 @@ module type TextEditDataStructure = sig
 
   (* move cursor around *)
   val move_left : 'a t -> 'a t
-  val move_left_n 'a t -> int -> 'a t
+  val move_left_n : 'a t -> int -> 'a t
   val move_right : 'a t -> 'a t
-  val move_right_n 'a t -> int -> 'a t
+  val move_right_n : 'a t -> int -> 'a t
 
   (* insert element BEFORE the cursor *)
   val insert : 'a -> 'a t -> 'a t
@@ -31,8 +31,8 @@ end
 
 module type S = sig
   type container
-   
-  val new : container
+
+  val create_empty : container
   val build : string -> container
   val decompose : container -> string
   val insert : char -> container -> container
@@ -68,23 +68,10 @@ module Make (DS : TextEditDataStructure) = struct
   let prev_newline_offset c = find_newline c 0 DS.move_left
   let next_newline_offset c = find_newline c 0 DS.move_right
 
-  let up c =
-    match prev_newline_offset c with
-    | Left _ -> c
-    | Right off ->
-        let new_c = apply c DS.move_left (off + 1) in
-        let line_len = prev_newline_offset new_c in
-        if line_len > off then apply new_c DS.move_left (line_len - off)
-        else new_c
-
-  let down c =
-    match next_newline_offset c with
-    | Left _ -> c
-    | Right off ->
-        let new_c = apply c DS.move_right off in
-        let line_len = next_newline_offset new_c in
-        if line_len > off then apply new_c DS.move_right (line_len - off)
-        else new_c
+  let start_of_line c =
+    if DS.is_begin c then true
+    else
+      match DS.move_left c |> DS.elem with None -> false | Some x -> x == '\n'
 
   let get_at_cursor c = DS.elem c
   let set_at_cursor ch c = DS.remove c |> DS.insert ch c
