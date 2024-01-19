@@ -1,2 +1,5 @@
-(test
- (name oed))
+(library
+  (name test)
+  (inline_tests)
+  (libraries oed)
+  (preprocess (pps ppx_inline_test)))
