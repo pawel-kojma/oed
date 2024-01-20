@@ -20,12 +20,30 @@ let elem (_, lst) = match lst with [] -> None | hd :: _ -> Some hd
 let remove (ctx, lst) =
   match ctx with Start -> (ctx, lst) | Right (ctx, _) -> (ctx, lst)
 
-let is_empty (ctx,lst)= ctx == Start && lst == []
+let is_empty (ctx, lst) = ctx == Start && lst == []
 let is_begin (ctx, _) = ctx == Start
 let is_end (_, lst) = lst == []
 
-let rec move_left_n gb n =
-  if n <= 0 then gb else move_left_n (move_left gb) (n - 1)
+let rec move_left_n n gb =
+  if n <= 0 then gb else move_left_n (n - 1) (move_left gb)
 
-let rec move_right_n gb n =
-  if n <= 0 then gb else move_right_n (move_right gb) (n - 1)
+let rec move_right_n n gb =
+  if n <= 0 then gb else move_right_n (n - 1) (move_right gb)
+
+let find_prev e (ctx, _) =
+  let rec _find_prev acc e ctx =
+    match ctx with
+    | Start -> Either.left acc
+    | Right (_, el) when el == e -> acc + 1 |> Either.right
+    | Right (ctx, _) -> _find_prev (acc + 1) e ctx
+  in
+  _find_prev 0 e ctx
+
+let find_next e (_, lst) =
+  let rec _find_next acc e lst =
+    match lst with
+    | [] -> Either.left acc
+    | hd :: _ when hd == e -> acc + 1 |> Either.right
+    | _ :: tl -> _find_next (acc + 1) e tl
+  in
+  if lst == [] then Either.left 0 else _find_next 0 e (List.tl lst)

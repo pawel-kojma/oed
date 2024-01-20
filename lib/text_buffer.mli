@@ -15,9 +15,9 @@ module type TextEditDataStructure = sig
 
   (* move cursor around *)
   val move_left : 'a t -> 'a t
-  val move_left_n : 'a t -> int -> 'a t
+  val move_left_n : int -> 'a t -> 'a t
   val move_right : 'a t -> 'a t
-  val move_right_n : 'a t -> int -> 'a t
+  val move_right_n : int -> 'a t -> 'a t
 
   (* insert element BEFORE the cursor *)
   val insert : 'a -> 'a t -> 'a t
@@ -27,6 +27,8 @@ module type TextEditDataStructure = sig
 
   (* check element at cursor location *)
   val elem : 'a t -> 'a option
+  val find_prev : 'a -> 'a t -> (int, int) Either.t
+  val find_next : 'a -> 'a t -> (int, int) Either.t
 end
 
 module type S = sig
@@ -41,8 +43,10 @@ module type S = sig
   val right : container -> container
   val up : container -> container
   val down : container -> container
-  val prev_nl_off : container -> int
-  val next_nl_off : container -> int
+  val left_n : int -> container -> container
+  val right_n : int -> container -> container
+  val prev_nl_off : container -> (int, int) Either.t
+  val next_nl_off : container -> (int, int) Either.t
   val get_at_cursor : container -> char option
   val set_at_cursor : char -> container -> container
 end
