@@ -69,20 +69,7 @@ module Make (DS : TextEditDataStructure) = struct
   let prev_nl_off c = DS.find_prev '\n' c
   let next_nl_off c = DS.find_next '\n' c
   let is_eq c ch = match DS.elem c with None -> false | Some x -> x == ch
-
-  (*let start_of_line c =
-    if DS.is_begin c then true
-    else
-      match left c |> DS.elem with
-      | None -> failwith "shouldn't be raised"
-      | Some x -> x == '\n'*)
-
-  (* let end_of_line c = if DS.is_end c then true else right c |> start_of_line*)
   let to_sol c = match prev_nl_off c with Left n -> n | Right n -> n - 1
-
-  (*let to_eol c =
-    if end_of_line c then 0
-    else match next_nl_off c with Left n -> n | Right n -> n - 1*)
 
   let line_length c =
     let new_c = DS.move_left_n (to_sol c) c in
