@@ -48,7 +48,7 @@ module type S = sig
   val prev_nl_off : container -> (int, int) Either.t
   val next_nl_off : container -> (int, int) Either.t
   val get_at_cursor : container -> char option
-  val set_at_cursor : char -> container -> container
+  val set_before_cursor : char -> container -> container
 end
 
 module Make (DS : TextEditDataStructure) : S with type container := char DS.t

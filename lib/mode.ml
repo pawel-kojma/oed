@@ -10,17 +10,17 @@ let insert_action key =
       let* y, x = Editor_io.getyx in
       let* maxy, maxx = Editor_io.getmaxyx in
       match key with
-      | Backspace -> Editor_IO.backspace
-      | Enter -> Editor_IO.enter
-      | Up when y - 1 >= 0 -> Editor_IO.up
-      | Down when y + 1 < maxy -> Editor_IO.down
-      | Left when x - 1 >= 0 -> Editor_IO.left
-      | Right when x + 1 < maxx -> Editor_IO.right
+      | Backspace -> Editor_io.backspace
+      | Enter -> Editor_io.enter
+      | Up when y - 1 >= 0 -> Editor_io.up
+      | Down when y + 1 < maxy -> Editor_io.down
+      | Left when x - 1 >= 0 -> Editor_io.left
+      | Right when x + 1 < maxx -> Editor_io.right
       | Escape ->
           let* () = EditorSt.change Mode Normal in
-          Editor_IO.change_status "--NORMAL--"
+          Editor_io.change_status "--NORMAL--"
       | _ -> EditorSt.return true)
-  | NonSpecialKey key -> Editor_IO.inskey key
+  | NonSpecialKey key -> Editor_io.inskey key
 
 let normal_action key =
   let* s = EditorSt.get in
@@ -29,12 +29,12 @@ let normal_action key =
       let* y, x = Editor_io.getyx in
       let* maxy, maxx = Editor_io.getmaxyx in
       match key with
-      | Up when y - 1 >= 0 -> Editor_IO.up
-      | (Enter | Down) when y + 1 < maxy -> Editor_IO.down
-      | Left when x - 1 >= 0 -> Editor_IO.left
-      | Right when x + 1 < maxx -> Editor_IO.right
+      | Up when y - 1 >= 0 -> Editor_io.up
+      | (Enter | Down) when y + 1 < maxy -> Editor_io.down
+      | Left when x - 1 >= 0 -> Editor_io.left
+      | Right when x + 1 < maxx -> Editor_io.right
       | Escape ->
           let* () = EditorSt.change Mode Insert in
-          Editor_IO.change_status "--INSERT--"
+          Editor_io.change_status "--INSERT--"
       | _ -> EditorSt.return true)
   | NonSpecialKey _ -> EditorSt.return true

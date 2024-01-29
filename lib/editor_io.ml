@@ -20,8 +20,8 @@ let move_cursor f =
   let* s = EditorSt.get in
   let n, vx, vy = f s.buffer in
   let* () = EditorSt.change Buffer n in
-  let y, x = getyx in
-  mv (y + vy) (x + vx)
+  let* y, x = getyx in
+  mv (y + vy) vx
 
 let up = move_cursor TextBuffer.up
 let down = move_cursor TextBuffer.down
@@ -31,13 +31,14 @@ let right = move_cursor TextBuffer.right
 let scroll_down =
   let* s = EditorSt.get in
   let* () = Curses.wscrl s.mwin 1 |> curses_try in
-  let line = TextBuffer.get_next_line s.buffer in
-  if String.empty == line then EditorSt.return ()
-  else
-    let* maxy, _ = getmaxyx in
-    let* () = mv (maxy - 1) 0 in
-    let* () = Curses.addstr line |> curses_try in
-    mv y x
+  let line = TextBuffer.next_line s.buffer in
+  match line with
+  | None -> EditorSt.return ()
+  | Some line ->
+      let* maxy, _ = getmaxyx in
+      let* () = mv (maxy - 1) 0 in
+      let* () = Curses.addstr line |> curses_try in
+      mv y x
 
 let inskey key =
   let* s = EditorSt.get in
