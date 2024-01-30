@@ -32,23 +32,25 @@ module type TextEditDataStructure = sig
 end
 
 module type S = sig
-  type container
+  type t
   type cords = int * int
 
-  val create_empty : container
-  val build : string -> container
-  val decompose : container -> string
-  val insert : char -> container -> container
-  val remove : container -> container
-  val left : container -> container * cords
-  val right : container -> container * cords
-  val up : container -> container * cords
-  val down : container -> container * cords
-  val prev_nl_off : container -> (int, int) Either.t
-  val next_nl_off : container -> (int, int) Either.t
-  val get_at_cursor : container -> char option
-  (*val set_before_cursor : char -> container -> container*)
+  val of_cords : cords -> int * int
+  val create_empty : t
+  val build : string -> t
+  val decompose : t -> string
+  val insert : char -> t -> t * cords
+  val remove : t -> t * cords
+  val left : t -> t * cords
+  val right : t -> t * cords
+  val up : t -> t * cords
+  val down : t -> t * cords
+  val prev_nl_off : t -> (int, int) Either.t
+  val next_nl_off : t -> (int, int) Either.t
+  val get_at_cursor : t -> char option
+  val get_before_cursor : t -> char option
+    val next_line : t -> string option
+
 end
 
-module Make (DS : TextEditDataStructure) :
-  S with type container := char DS.t * int DS.t * int
+module Make (DS : TextEditDataStructure) : S

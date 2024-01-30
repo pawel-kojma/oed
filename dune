@@ -1,4 +1,5 @@
 (env
  (dev
   (flags
-   (:standard -w -69))))
+   (:standard -w -69)
+   (:standard -w -67))))

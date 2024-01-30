@@ -5,15 +5,15 @@ module Editor : sig
 
   type 'a gadt =
     | Mode : mode gadt
-    | Buffer : char Gap_buffer.t gadt
-    | History : char Gap_buffer.t Gap_buffer.t gadt
+    | Buffer : TextBuffer.t gadt
+    | History : TextBuffer.t Gap_buffer.t gadt
     | MainWindow : Curses.window gadt
     | SubWindow : Curses.window gadt
 
   type t = {
     mode : mode;
-    buffer : char Gap_buffer.t;
-    history : char Gap_buffer.t Gap_buffer.t;
+    buffer : TextBuffer.t;
+    history : TextBuffer.t Gap_buffer.t;
     mwin : Curses.window;
     swin : Curses.window;
   }
@@ -22,20 +22,20 @@ module Editor : sig
 end = struct
   type mode = Normal | Insert
 
+  type 'a gadt =
+    | Mode : mode gadt
+    | Buffer : TextBuffer.t gadt
+    | History :  TextBuffer.t Gap_buffer.t gadt
+    | MainWindow : Curses.window gadt
+    | SubWindow : Curses.window gadt
+
   type t = {
     mode : mode;
-    buffer : char Gap_buffer.t;
-    history : char Gap_buffer.t Gap_buffer.t;
+    buffer : TextBuffer.t;
+    history : TextBuffer.t Gap_buffer.t;
     mwin : Curses.window;
     swin : Curses.window;
   }
-
-  type 'a gadt =
-    | Mode : mode gadt
-    | Buffer : char Gap_buffer.t gadt
-    | History : char Gap_buffer.t Gap_buffer.t gadt
-    | MainWindow : Curses.window gadt
-    | SubWindow : Curses.window gadt
 
   let change : type a. a gadt -> a -> t -> t =
    fun typ el s ->

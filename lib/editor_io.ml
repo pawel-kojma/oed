@@ -18,10 +18,10 @@ let mv y x =
 
 let move_cursor f =
   let* s = EditorSt.get in
-  let n, vx, vy = f s.buffer in
+  let n, c = f s.buffer in
+  let y, x = TextBuffer.of_cords c in
   let* () = EditorSt.change Buffer n in
-  let* y, x = getyx in
-  mv (y + vy) vx
+  mv y x
 
 let up = move_cursor TextBuffer.up
 let down = move_cursor TextBuffer.down
@@ -30,11 +30,12 @@ let right = move_cursor TextBuffer.right
 
 let scroll_down =
   let* s = EditorSt.get in
-  let* () = Curses.wscrl s.mwin 1 |> curses_try in
   let line = TextBuffer.next_line s.buffer in
   match line with
   | None -> EditorSt.return ()
   | Some line ->
+      let* y, x = getyx in
+      let* () = Curses.wscrl s.mwin 1 |> curses_try in
       let* maxy, _ = getmaxyx in
       let* () = mv (maxy - 1) 0 in
       let* () = Curses.addstr line |> curses_try in
@@ -42,9 +43,9 @@ let scroll_down =
 
 let inskey key =
   let* s = EditorSt.get in
-  let n = TextBuffer.insert key s.buffer in
+  let n, _ = TextBuffer.insert key s.buffer in
   let* () = EditorSt.change Buffer n in
-  let* () = Curses.insch key |> curses_try in
+  let* () = Curses.insch (int_of_char key) |> curses_try in
   let* y, x = getyx in
   let* maxy, maxx = getmaxyx in
   if x + 1 >= maxx && y + 1 >= maxy then
@@ -58,7 +59,10 @@ let enter = inskey '\n'
 let change_status str =
   let* s = EditorSt.get in
   let* () = Curses.wmove s.swin 0 0 |> curses_try in
-  let* () = Curses.clrtoeol () |> curses_try in
-  let* () = Curses.attron Curses.A.bold |> curses_try in
+  let () = Curses.clrtoeol () in
+  let () = Curses.attron Curses.A.bold in
   let* () = Curses.addstr str |> curses_try in
-  Curses.attroff Curses.A.bold |> curses_try
+  let () = Curses.attroff Curses.A.bold in
+  EditorSt.return ()
+
+let backspace = EditorSt.return ()
