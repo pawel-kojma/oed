@@ -33,24 +33,22 @@ end
 
 module type S = sig
   type t
-  type cords = int * int
 
-  val of_cords : cords -> int * int
+  val of_cords : t -> int * int
   val create_empty : t
   val build : string -> t
   val decompose : t -> string
-  val insert : char -> t -> t * cords
-  val remove : t -> t * cords
-  val left : t -> t * cords
-  val right : t -> t * cords
-  val up : t -> t * cords
-  val down : t -> t * cords
+  val insert : char -> t -> t
+  val remove : t -> t
+  val left : t -> t
+  val right : t -> t
+  val up : t -> t
+  val down : t -> t
   val prev_nl_off : t -> (int, int) Either.t
   val next_nl_off : t -> (int, int) Either.t
   val get_at_cursor : t -> char option
   val get_before_cursor : t -> char option
-    val next_line : t -> string option
-
+  val next_line : t -> string option
 end
 
 module Make (DS : TextEditDataStructure) : S

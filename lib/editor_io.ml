@@ -18,8 +18,8 @@ let mv y x =
 
 let move_cursor f =
   let* s = EditorSt.get in
-  let n, c = f s.buffer in
-  let y, x = TextBuffer.of_cords c in
+  let n = f s.buffer in
+  let y, x = TextBuffer.of_cords n in
   let* () = EditorSt.change Buffer n in
   mv y x
 
@@ -43,7 +43,7 @@ let scroll_down =
 
 let inskey key =
   let* s = EditorSt.get in
-  let n, _ = TextBuffer.insert key s.buffer in
+  let n  = TextBuffer.insert key s.buffer in
   let* () = EditorSt.change Buffer n in
   let* () = Curses.insch (int_of_char key) |> curses_try in
   let* y, x = getyx in

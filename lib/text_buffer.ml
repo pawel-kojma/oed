@@ -35,18 +35,17 @@ end
 
 module type S = sig
   type t
-  type cords = int * int
 
-  val of_cords : cords -> int * int
+  val of_cords : t -> int * int
   val create_empty : t
   val build : string -> t
   val decompose : t -> string
-  val insert : char -> t -> t * cords
-  val remove : t -> t * cords
-  val left : t -> t * cords
-  val right : t -> t * cords
-  val up : t -> t * cords
-  val down : t -> t * cords
+  val insert : char -> t -> t
+  val remove : t -> t
+  val left : t -> t
+  val right : t -> t
+  val up : t -> t
+  val down : t -> t
   val prev_nl_off : t -> (int, int) Either.t
   val next_nl_off : t -> (int, int) Either.t
   val get_at_cursor : t -> char option
@@ -56,7 +55,6 @@ end
 
 module Make (DS : TextEditDataStructure) = struct
   type t = char DS.t * int DS.t * int
-  type cords = int * int
 
   let inc i =
     match DS.elem i with
@@ -68,11 +66,11 @@ module Make (DS : TextEditDataStructure) = struct
     | None -> failwith "dec"
     | Some a -> DS.remove i |> DS.insert (a - 1)
 
-  let app_cords ((c, i, s) : t) : t * cords =
+  let of_cords (_, i, s) =
     let rec _app_cords i n =
       if DS.is_begin i then n - 1 else _app_cords (DS.move_left i) (n + 1)
     in
-    ((c, i, s), (_app_cords i 0, s))
+    (_app_cords i 0, s)
 
   let elem_sure c =
     match DS.elem c with None -> failwith "elem_sure" | Some x -> x
@@ -81,7 +79,6 @@ module Make (DS : TextEditDataStructure) = struct
   let line_length i = match DS.elem i with None -> 0 | Some n -> n
   let list_of_string s = List.init (String.length s) (String.get s)
   let string_of_list l = String.of_seq (List.to_seq l)
-  let of_cords (x, y) = (x, y)
   let create_empty = (DS.empty, DS.of_list [ 0 ], 0)
 
   let build str =
@@ -100,43 +97,40 @@ module Make (DS : TextEditDataStructure) = struct
     if ch == '\n' then
       let ll = line_length i in
       (DS.insert ch c, DS.remove i |> DS.insert s |> DS.insert (ll - s), 0)
-      |> app_cords
-    else (DS.insert ch c, inc i, s + 1) |> app_cords
+    else (DS.insert ch c, inc i, s + 1)
 
   let remove (c, i, s) =
     match DS.elem c with
-    | None -> (c, i, s) |> app_cords
+    | None -> (c, i, s)
     | Some ch when ch == '\n' ->
         let lp = line_length (DS.move_left i) and ll = line_length i in
         (DS.remove c, DS.remove i |> DS.remove |> DS.insert (ll + lp), lp)
-        |> app_cords
-    | Some _ -> (DS.remove c, dec i, s - 1) |> app_cords
+    | Some _ -> (DS.remove c, dec i, s - 1)
 
   let left (c, i, s) =
     let nc = DS.move_left c in
-    if is_eq c '\n' then (c, i, s) |> app_cords else (nc, i, s - 1) |> app_cords
+    if is_eq c '\n' then (c, i, s) else (nc, i, s - 1)
 
   let right (c, i, s) =
     let nc = DS.move_right c in
-    if is_eq nc '\n' then (c, i, s) |> app_cords
-    else (nc, i, s + 1) |> app_cords
+    if is_eq nc '\n' then (c, i, s) else (nc, i, s + 1)
 
   let prev_nl_off (c, _, _) = DS.find_prev '\n' c
   let next_nl_off (c, _, _) = DS.find_next '\n' c
 
   let up (c, i, s) =
-    if DS.move_left i |> DS.is_begin then (c, i, s) |> app_cords
+    if DS.move_left i |> DS.is_begin then (c, i, s)
     else
       let lp = line_length (DS.move_left i) in
       let off, ns = if s > lp then (s + 1, lp) else (lp, s) in
-      (DS.move_left_n off c, DS.move_left i, ns) |> app_cords
+      (DS.move_left_n off c, DS.move_left i, ns)
 
   let down (c, i, s) =
-    if DS.is_end i then (c, i, s) |> app_cords
+    if DS.is_end i then (c, i, s)
     else
       let ll = line_length i and ln = line_length (DS.move_right i) in
       let off, ns = if s > ln then (ll - s + ln, ln) else (ll, s) in
-      (DS.move_right_n off c, DS.move_right i, ns) |> app_cords
+      (DS.move_right_n off c, DS.move_right i, ns)
 
   let next_line (c, i, s) =
     if DS.is_end i then None
