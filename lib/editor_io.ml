@@ -19,7 +19,7 @@ let mv y x =
 let move_cursor f =
   let* s = EditorSt.get in
   let n = f s.buffer in
-  let y, x = TextBuffer.of_cords n in
+  let y, x = TextBuffer.to_cords n in
   let* () = EditorSt.change Buffer n in
   mv y x
 

@@ -14,21 +14,36 @@ let move_left (ctx, lst) =
 let move_right (ctx, lst) =
   match lst with [] -> (ctx, lst) | hd :: tl -> (Right (ctx, hd), tl)
 
-let insert a (ctx, lst) = (Right (ctx, a), lst)
-let elem (_, lst) = match lst with [] -> None | hd :: _ -> Some hd
+let insert_at a (ctx, lst) = (ctx, a :: lst)
+let elem_at (_, lst) = match lst with [] -> None | hd :: _ -> Some hd
+let insert_before a (ctx, lst) = (Right (ctx, a), lst)
 
-let remove (ctx, lst) =
+let elem_before (ctx, _) =
+  match ctx with Start -> None | Right (_, el) -> Some el
+
+let remove_before (ctx, lst) =
   match ctx with Start -> (ctx, lst) | Right (ctx, _) -> (ctx, lst)
 
-let is_empty (ctx, lst) = ctx == Start && lst == []
-let is_begin (ctx, _) = ctx == Start
-let is_end (_, lst) = lst == []
+let remove_at (ctx, lst) =
+  match lst with [] -> (ctx, lst) | _ :: tl -> (ctx, tl)
+
+let is_empty (ctx, lst) = ctx = Start && lst = []
+let is_begin (ctx, _) = ctx = Start
+let is_end (_, lst) = lst = []
 
 let rec move_left_n n gb =
   if n <= 0 then gb else move_left_n (n - 1) (move_left gb)
 
 let rec move_right_n n gb =
   if n <= 0 then gb else move_right_n (n - 1) (move_right gb)
+
+let copy_n n (_, lst) =
+  let rec _copy_n acc n src =
+    match src with
+    | [] -> List.rev acc |> of_list
+    | hd :: tl -> _copy_n (hd :: acc) (n - 1) tl
+  in
+  _copy_n [] n lst
 
 let find_prev e (ctx, _) =
   let rec _find_prev acc e ctx =

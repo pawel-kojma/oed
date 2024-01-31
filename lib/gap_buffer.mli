@@ -10,10 +10,14 @@ val of_list : 'a list -> 'a gap_buffer
 val to_list : 'a gap_buffer -> 'a list
 val move_left : 'a gap_buffer -> 'a gap_buffer
 val move_right : 'a gap_buffer -> 'a gap_buffer
-val insert : 'a -> 'a gap_buffer -> 'a gap_buffer
-val remove : 'a gap_buffer -> 'a gap_buffer
-val elem : 'a gap_buffer -> 'a option
+val insert_at : 'a -> 'a gap_buffer -> 'a gap_buffer
+val remove_at : 'a gap_buffer -> 'a gap_buffer
+val elem_at : 'a gap_buffer -> 'a option
+val insert_before : 'a -> 'a gap_buffer -> 'a gap_buffer
+val remove_before : 'a gap_buffer -> 'a gap_buffer
+val elem_before : 'a gap_buffer -> 'a option
 val move_left_n : int -> 'a gap_buffer -> 'a gap_buffer
 val move_right_n : int -> 'a gap_buffer -> 'a gap_buffer
 val find_prev : 'a -> 'a gap_buffer -> (int, int) Either.t
 val find_next : 'a -> 'a gap_buffer -> (int, int) Either.t
+val copy_n : int -> 'a gap_buffer -> 'a gap_buffer

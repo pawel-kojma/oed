@@ -19,14 +19,20 @@ module type TextEditDataStructure = sig
   val move_right : 'a t -> 'a t
   val move_right_n : int -> 'a t -> 'a t
 
-  (* insert element BEFORE the cursor *)
-  val insert : 'a -> 'a t -> 'a t
+  (* insert element BEFORE/AT the cursor *)
+  val insert_at : 'a -> 'a t -> 'a t
+  val insert_before : 'a -> 'a t -> 'a t
 
-  (* remove element BEFORE the cursor *)
-  val remove : 'a t -> 'a t
+  (* remove element BEFORE/AT the cursor *)
+  val remove_at : 'a t -> 'a t
+  val remove_before : 'a t -> 'a t
 
-  (* check element at cursor location *)
-  val elem : 'a t -> 'a option
+  (* copy n next elements starting AT cursor *)
+  val copy_n : int -> 'a t -> 'a t
+
+  (* check element BEFORE/AT cursor location *)
+  val elem_at : 'a t -> 'a option
+  val elem_before : 'a t -> 'a option
   val find_prev : 'a -> 'a t -> (int, int) Either.t
   val find_next : 'a -> 'a t -> (int, int) Either.t
 end
@@ -34,7 +40,7 @@ end
 module type S = sig
   type t
 
-  val of_cords : t -> int * int
+  val to_cords : t -> int * int
   val create_empty : t
   val build : string -> t
   val decompose : t -> string
@@ -49,6 +55,7 @@ module type S = sig
   val get_at_cursor : t -> char option
   val get_before_cursor : t -> char option
   val next_line : t -> string option
+  val debug_view : t -> char list * int list * int
 end
 
 module Make (DS : TextEditDataStructure) : S
