@@ -80,6 +80,46 @@ let inskey key =
 
 let enter = inskey '\n'
 
+let backspace =
+  let* s = EditorSt.get in
+  match TextBuffer.get_before_cursor s.buffer with
+  | None -> EditorSt.return ()
+  | Some ch when ch = '\n' -> (
+      let line = TextBuffer.get_line s.buffer in
+      let n = TextBuffer.remove s.buffer in
+      let* () = EditorSt.change Buffer n in
+      let* () = Curses.wdeleteln s.mwin |> curses_try in
+      let* y, x = get_cords in
+      if y < 0 then
+        let* () = scroll_up in
+        let* y, x = get_cords in
+        let* () = mv y x in
+        let* () = Curses.waddstr s.mwin line |> curses_try in
+        Curses.wrefresh s.mwin |> curses_try
+      else
+        let maxy, _ = getmaxyx in
+        match TextBuffer.nth_next_line (maxy - y) s.buffer with
+        | None ->
+            let* y, x = get_cords in
+            let* () = mv y x in
+            let* () = Curses.waddstr s.mwin line |> curses_try in
+            Curses.wrefresh s.mwin |> curses_try
+        | Some l ->
+            let* () = mv (maxy - 1) 0 in
+            let* () = Curses.waddstr s.mwin l |> curses_try in
+            let* () = Curses.wrefresh s.mwin |> curses_try in
+            let* y, x = get_cords in
+            let* () = mv y x in
+            let* () = Curses.waddstr s.mwin line |> curses_try in
+            Curses.wrefresh s.mwin |> curses_try)
+  | Some ch ->
+      let n = TextBuffer.remove s.buffer in
+      let* () = EditorSt.change Buffer n in
+      let* () = Curses.wdelch s.mwin |> curses_try in
+      let* y,x = get_cords in
+      mv y x
+      
+
 let change_status str =
   let* s = EditorSt.get in
   let* () = Curses.wmove s.swin 0 0 |> curses_try in
@@ -88,7 +128,5 @@ let change_status str =
   let* () = Curses.waddstr s.swin str |> curses_try in
   let () = Curses.wattroff s.swin Curses.A.bold in
   let* () = Curses.wrefresh s.swin |> curses_try in
-  let* y,x = get_cords in
+  let* y, x = get_cords in
   mv y x
-
-let backspace = EditorSt.return ()
