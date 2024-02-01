@@ -89,7 +89,7 @@ let backspace =
       let n = TextBuffer.remove s.buffer in
       let* () = EditorSt.change Buffer n in
       let* () = Curses.wdeleteln s.mwin |> curses_try in
-      let* y, x = get_cords in
+      let* y, _ = get_cords in
       if y < 0 then
         let* () = scroll_up in
         let* y, x = get_cords in
@@ -97,7 +97,7 @@ let backspace =
         let* () = Curses.waddstr s.mwin line |> curses_try in
         Curses.wrefresh s.mwin |> curses_try
       else
-        let maxy, _ = getmaxyx in
+        let* maxy, _ = getmaxyx in
         match TextBuffer.nth_next_line (maxy - y) s.buffer with
         | None ->
             let* y, x = get_cords in
@@ -112,13 +112,12 @@ let backspace =
             let* () = mv y x in
             let* () = Curses.waddstr s.mwin line |> curses_try in
             Curses.wrefresh s.mwin |> curses_try)
-  | Some ch ->
+  | Some _ ->
       let n = TextBuffer.remove s.buffer in
       let* () = EditorSt.change Buffer n in
       let* () = Curses.wdelch s.mwin |> curses_try in
-      let* y,x = get_cords in
+      let* y, x = get_cords in
       mv y x
-      
 
 let change_status str =
   let* s = EditorSt.get in

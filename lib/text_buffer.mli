@@ -56,6 +56,8 @@ module type S = sig
   val get_before_cursor : t -> char option
   val next_line : t -> string option
   val get_line : t -> string
+    val nth_next_line : int -> t -> string option
+
   val debug_view : t -> char list * int list * int
 end
 

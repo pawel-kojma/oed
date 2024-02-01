@@ -196,27 +196,56 @@ let%expect_test "get_line_1" =
     T.(build "ala ma\nkota\na\nkot ale" |> down |> right_n 2 |> get_line)
   in
   print_endline s;
-  [%expect{| kota |}]
+  [%expect {| kota |}]
 
 let%expect_test "get_line_2" =
   let s = T.(build "ala ma\nkota\na\nkot ale" |> down |> down |> get_line) in
   print_endline s;
-  [%expect{| a |}]
+  [%expect {| a |}]
 
 let%expect_test "get_line_3" =
   let s =
     T.(build "ala ma\nkota\na\nkot ale" |> down |> down |> down |> get_line)
   in
   print_endline s;
-  [%expect{| kot ale |}]
+  [%expect {| kot ale |}]
 
 let%expect_test "get_line_4" =
   T.(build "ala ma\nkota\na\nkot ale" |> get_line) |> print_endline;
-  [%expect{| ala ma |}]
+  [%expect {| ala ma |}]
 
 let%expect_test "get_line_5" =
-  T.(build "ala ma\nkota\na\n" |> down |> down |> down |> get_line) |> print_endline;
+  T.(build "ala ma\nkota\na\n" |> down |> down |> down |> get_line)
+  |> print_endline;
   [%expect {| |}]
+
+let%expect_test "nth_next_line_1" =
+  match T.(build "ala ma\nkota ,\na kot\nma\nale" |> nth_next_line 2) with
+  | None -> print_endline "no string"
+  | Some s ->
+      print_endline s;
+      [%expect{| a kot |}]
+
+let%expect_test "nth_next_line_2" =
+  match T.(build "ala ma\nkota a\n kot\nma\nale" |> nth_next_line 0) with
+  | None -> print_endline "no string"
+  | Some s ->
+      print_endline s;
+      [%expect{| ala ma |}]
+
+let%expect_test "nth_next_line_3" =
+  match T.(build "ala ma\nkota a\n kot\nma\nale" |> nth_next_line 4) with
+  | None -> print_endline "no string"
+  | Some s ->
+      print_endline s;
+      [%expect{| ale |}]
+
+let%expect_test "nth_next_line_4" =
+  match T.(build "ala ma\nkota a\n kot\nma\nale" |> nth_next_line 5) with
+  | None ->
+      print_endline "no string";
+      [%expect{| no string |}]
+  | Some s -> print_endline s
 
 let%expect_test "cords_1" =
   let y, x = T.(build "abba\n" |> to_cords) in
