@@ -6,9 +6,9 @@ open Oed.Editor_state
 let ( let* ) = EditorSt.bind
 
 let rec main_loop () =
-  let* st = EditorSt.get in
-  let key = Curses.getch () |> Key.convert in
-  match st.mode with
+  let* s = EditorSt.get in
+  let key = Curses.wgetch s.mwin |> Key.convert in
+  match s.mode with
   | Normal ->
       let* r =
         EditorSt.catch (Mode.normal_action key) (fun () -> EditorSt.fail)
@@ -21,7 +21,6 @@ let rec main_loop () =
       if r then main_loop () else EditorSt.return ()
 
 let () =
-  Curses.use_env true;
   let _w = Curses.initscr () in
   let maxy, maxx = Curses.getmaxyx _w in
   let w_main = Curses.newwin (maxy - 2) maxx 0 0 in
@@ -36,10 +35,11 @@ let () =
   let state : Editor.t =
     {
       mode = Normal;
-      buffer = TextBuffer.create_empty;
+      buffer = TextBuffer.build "";
       history = Gap_buffer.empty;
       mwin = w_main;
       swin = w_sub;
+      off = 0;
     }
   in
   match EditorSt.run state (main_loop ()) with

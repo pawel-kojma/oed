@@ -55,6 +55,7 @@ module type S = sig
   val get_at_cursor : t -> char option
   val get_before_cursor : t -> char option
   val next_line : t -> string option
+  val get_line : t -> string
   val debug_view : t -> char list * int list * int
 end
 
@@ -151,6 +152,10 @@ module Make (DS : TextEditDataStructure) = struct
       Some
         (DS.copy_n ln (DS.move_right_n (ll - s + 1) c)
         |> DS.to_list |> string_of_list)
+
+  let get_line (c, i, s) =
+    let ll = line_length i in
+    DS.copy_n ll (DS.move_left_n s c) |> DS.to_list |> string_of_list
 
   let get_at_cursor (c, _, _) = DS.elem_at c
   let get_before_cursor (c, _, _) = DS.elem_before c

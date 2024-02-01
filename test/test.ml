@@ -14,7 +14,7 @@ let%test "data_in_order_nl" =
   T.build "ala ma kota\na kot ma ale"
   |> T.decompose = "ala ma kota\na kot ma ale"
 
-let%expect_test "build" =
+let%expect_test "build_1" =
   let c = T.(build "linia\ndruga linia" |> right_n 2) in
   let _, i, s = T.debug_view c in
   let () = List.iter (Printf.printf "%d ") i in
@@ -22,7 +22,7 @@ let%expect_test "build" =
   print_int s;
   [%expect {| 5 11 |2 |}]
 
-let%expect_test "build_w_lines" =
+let%expect_test "build_2" =
   let c = T.(build "linia\ndruga linia\ntrzecia\nasdf\n\n" |> right_n 4) in
   let _, i, s = T.debug_view c in
   let () = List.iter (Printf.printf "%d ") i in
@@ -132,6 +132,18 @@ let%expect_test "text_editing" =
     a
     b |}]
 
+let%expect_test "integrity_after_moving" =
+  let c =
+    T.(
+      build "ala ma\nkota\na\nkot ale"
+      |> down |> down |> right_n 4 |> up |> left)
+  in
+  let _, i, s = T.debug_view c in
+  let () = List.iter (Printf.printf "%d ") i in
+  let () = print_string "|" in
+  print_int s;
+  [%expect {| 6 4 1 7 |0 |}]
+
 let%expect_test "insert_newline" =
   T.(build "abracadabra" |> right_n 4 |> insert '\n' |> decompose)
   |> print_endline;
@@ -152,7 +164,9 @@ let%expect_test "next_line_1" =
       [%expect {|kamilslimak|}]
 
 let%expect_test "next_line_2" =
-  let s = T.(build "abracadabra\nkamilslimak\n" |> next_line) in
+  let s =
+    T.(build "abracadabra\nkamilslimak\nasdasdasd\nlinia z spacja" |> next_line)
+  in
   match s with
   | None -> failwith "no string"
   | Some x ->
@@ -177,6 +191,33 @@ let%expect_test "next_line_4" =
       print_endline x;
       [%expect {||}]
 
+let%expect_test "get_line_1" =
+  let s =
+    T.(build "ala ma\nkota\na\nkot ale" |> down |> right_n 2 |> get_line)
+  in
+  print_endline s;
+  [%expect{| kota |}]
+
+let%expect_test "get_line_2" =
+  let s = T.(build "ala ma\nkota\na\nkot ale" |> down |> down |> get_line) in
+  print_endline s;
+  [%expect{| a |}]
+
+let%expect_test "get_line_3" =
+  let s =
+    T.(build "ala ma\nkota\na\nkot ale" |> down |> down |> down |> get_line)
+  in
+  print_endline s;
+  [%expect{| kot ale |}]
+
+let%expect_test "get_line_4" =
+  T.(build "ala ma\nkota\na\nkot ale" |> get_line) |> print_endline;
+  [%expect{| ala ma |}]
+
+let%expect_test "get_line_5" =
+  T.(build "ala ma\nkota\na\n" |> down |> down |> down |> get_line) |> print_endline;
+  [%expect {| |}]
+
 let%expect_test "cords_1" =
   let y, x = T.(build "abba\n" |> to_cords) in
   Printf.printf "%d %d" y x;
@@ -199,9 +240,9 @@ let%expect_test "cords_3" =
 let%expect_test "cords_4" =
   let y, x = T.(build "abracadabra" |> right_n 4 |> insert '\n' |> to_cords) in
   Printf.printf "%d %d" x y;
-  [%expect{| 0 1 |}]
+  [%expect {| 0 1 |}]
 
 let%expect_test "cords_5" =
   let y, x = T.(build "abra\ncadabra" |> down |> remove |> to_cords) in
   Printf.printf "%d %d" x y;
-  [%expect{| 4 0 |}]
+  [%expect {| 4 0 |}]

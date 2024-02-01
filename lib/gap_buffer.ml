@@ -41,6 +41,7 @@ let copy_n n (_, lst) =
   let rec _copy_n acc n src =
     match src with
     | [] -> List.rev acc |> of_list
+    | _ :: _ when n = 0 -> List.rev acc |> of_list
     | hd :: tl -> _copy_n (hd :: acc) (n - 1) tl
   in
   _copy_n [] n lst

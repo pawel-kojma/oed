@@ -6,8 +6,6 @@ let ( let* ) = EditorSt.bind
 let insert_action key =
   match key with
   | SpecialKey key -> (
-      let* y, x = Editor_io.getyx in
-      let* maxy, maxx = Editor_io.getmaxyx in
       match key with
       | Backspace ->
           let* () = Editor_io.backspace in
@@ -15,23 +13,22 @@ let insert_action key =
       | Enter ->
           let* () = Editor_io.enter in
           EditorSt.return true
-      | Up when y - 1 >= 0 ->
+      | Up ->
           let* () = Editor_io.up in
           EditorSt.return true
-      | Down when y + 1 < maxy ->
+      | Down ->
           let* () = Editor_io.down in
           EditorSt.return true
-      | Left when x - 1 >= 0 ->
+      | Left ->
           let* () = Editor_io.left in
           EditorSt.return true
-      | Right when x + 1 < maxx ->
+      | Right ->
           let* () = Editor_io.right in
           EditorSt.return true
       | Escape ->
           let* () = EditorSt.change Mode Normal in
           let* () = Editor_io.change_status "--NORMAL--" in
-          EditorSt.return true
-      | _ -> EditorSt.return true)
+          EditorSt.return true)
   | NonSpecialKey key ->
       let* () = Editor_io.inskey (char_of_int key) in
       EditorSt.return true
@@ -39,19 +36,17 @@ let insert_action key =
 let normal_action key =
   match key with
   | SpecialKey key -> (
-      let* y, x = Editor_io.getyx in
-      let* maxy, maxx = Editor_io.getmaxyx in
       match key with
-      | Up when y - 1 >= 0 ->
+      | Up ->
           let* () = Editor_io.up in
           EditorSt.return true
-      | (Enter | Down) when y + 1 < maxy ->
+      | Enter | Down ->
           let* () = Editor_io.down in
           EditorSt.return true
-      | Left when x - 1 >= 0 ->
+      | Left ->
           let* () = Editor_io.left in
           EditorSt.return true
-      | Right when x + 1 < maxx ->
+      | Right ->
           let* () = Editor_io.right in
           EditorSt.return true
       | Escape ->

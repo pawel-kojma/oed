@@ -2,39 +2,45 @@ module TextBuffer = Text_buffer.Make (Gap_buffer)
 
 module Editor : sig
   type mode = Normal | Insert
+  type ctx = TextBuffer.t * int
 
   type 'a gadt =
     | Mode : mode gadt
     | Buffer : TextBuffer.t gadt
-    | History : TextBuffer.t Gap_buffer.t gadt
+    | History : ctx Gap_buffer.t gadt
     | MainWindow : Curses.window gadt
     | SubWindow : Curses.window gadt
+    | Off : int gadt
 
   type t = {
     mode : mode;
     buffer : TextBuffer.t;
-    history : TextBuffer.t Gap_buffer.t;
+    history : ctx Gap_buffer.t;
     mwin : Curses.window;
     swin : Curses.window;
+    off : int;
   }
 
   val change : 'a gadt -> 'a -> t -> t
 end = struct
   type mode = Normal | Insert
+  type ctx = TextBuffer.t * int
 
   type 'a gadt =
     | Mode : mode gadt
     | Buffer : TextBuffer.t gadt
-    | History :  TextBuffer.t Gap_buffer.t gadt
+    | History : ctx Gap_buffer.t gadt
     | MainWindow : Curses.window gadt
     | SubWindow : Curses.window gadt
+    | Off : int gadt
 
   type t = {
     mode : mode;
     buffer : TextBuffer.t;
-    history : TextBuffer.t Gap_buffer.t;
+    history : ctx Gap_buffer.t;
     mwin : Curses.window;
     swin : Curses.window;
+    off : int;
   }
 
   let change : type a. a gadt -> a -> t -> t =
@@ -47,6 +53,7 @@ end = struct
           history = s.history;
           mwin = s.mwin;
           swin = s.swin;
+          off = s.off;
         }
     | Buffer ->
         {
@@ -55,6 +62,7 @@ end = struct
           history = s.history;
           mwin = s.mwin;
           swin = s.swin;
+          off = s.off;
         }
     | History ->
         {
@@ -63,6 +71,7 @@ end = struct
           history = el;
           mwin = s.mwin;
           swin = s.swin;
+          off = s.off;
         }
     | MainWindow ->
         {
@@ -71,6 +80,7 @@ end = struct
           history = s.history;
           mwin = el;
           swin = s.swin;
+          off = s.off;
         }
     | SubWindow ->
         {
@@ -79,6 +89,16 @@ end = struct
           history = s.history;
           mwin = s.mwin;
           swin = el;
+          off = s.off;
+        }
+    | Off ->
+        {
+          mode = s.mode;
+          buffer = s.buffer;
+          history = s.history;
+          mwin = s.mwin;
+          swin = s.swin;
+          off = el;
         }
 end
 
