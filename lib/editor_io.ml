@@ -87,6 +87,8 @@ let change_status str =
   let () = Curses.wattron s.swin Curses.A.bold in
   let* () = Curses.waddstr s.swin str |> curses_try in
   let () = Curses.wattroff s.swin Curses.A.bold in
-  EditorSt.return ()
+  let* () = Curses.wrefresh s.swin |> curses_try in
+  let* y,x = get_cords in
+  mv y x
 
 let backspace = EditorSt.return ()
