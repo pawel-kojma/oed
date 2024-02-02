@@ -5,20 +5,19 @@ open Oed.Editor_state
 
 let ( let* ) = EditorSt.bind
 
-let rec main_loop () =
+let rec main_handler :
+    type a. (a -> bool EditorSt.t) -> a Key.keyset -> unit EditorSt.t =
+ fun f x ->
   let* s = EditorSt.get in
-  let key = Curses.wgetch s.mwin |> Key.convert in
+  let key = Curses.wgetch s.mwin |> Key.convert x in
+  let* r = EditorSt.catch (f key) (fun () -> EditorSt.fail) in
+  if r then main_loop () else EditorSt.return ()
+
+and main_loop () =
+  let* s = EditorSt.get in
   match s.mode with
-  | Normal ->
-      let* r =
-        EditorSt.catch (Mode.normal_action key) (fun () -> EditorSt.fail)
-      in
-      if r then main_loop () else EditorSt.return ()
-  | Insert ->
-      let* r =
-        EditorSt.catch (Mode.insert_action key) (fun () -> EditorSt.fail)
-      in
-      if r then main_loop () else EditorSt.return ()
+  | Normal -> main_handler Mode.normal_action Normal
+  | Insert -> main_handler Mode.insert_action Insert
 
 let () =
   let _w = Curses.initscr () in
@@ -43,5 +42,5 @@ let () =
     }
   in
   match EditorSt.run state (main_loop ()) with
-  | Some () -> ()
+  | Some () -> Curses.endwin();()
   | None -> failwith "error ocurred"

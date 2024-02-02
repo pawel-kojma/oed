@@ -224,27 +224,27 @@ let%expect_test "nth_next_line_1" =
   | None -> print_endline "no string"
   | Some s ->
       print_endline s;
-      [%expect{| a kot |}]
+      [%expect {| a kot |}]
 
 let%expect_test "nth_next_line_2" =
   match T.(build "ala ma\nkota a\n kot\nma\nale" |> nth_next_line 0) with
   | None -> print_endline "no string"
   | Some s ->
       print_endline s;
-      [%expect{| ala ma |}]
+      [%expect {| ala ma |}]
 
 let%expect_test "nth_next_line_3" =
   match T.(build "ala ma\nkota a\n kot\nma\nale" |> nth_next_line 4) with
   | None -> print_endline "no string"
   | Some s ->
       print_endline s;
-      [%expect{| ale |}]
+      [%expect {| ale |}]
 
 let%expect_test "nth_next_line_4" =
   match T.(build "ala ma\nkota a\n kot\nma\nale" |> nth_next_line 5) with
   | None ->
       print_endline "no string";
-      [%expect{| no string |}]
+      [%expect {| no string |}]
   | Some s -> print_endline s
 
 let%expect_test "cords_1" =
