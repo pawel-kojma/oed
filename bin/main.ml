@@ -42,5 +42,7 @@ let () =
     }
   in
   match EditorSt.run state (main_loop ()) with
-  | Some () -> Curses.endwin();()
+  | Some () ->
+      Curses.endwin ();
+      ()
   | None -> failwith "error ocurred"

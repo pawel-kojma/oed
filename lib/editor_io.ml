@@ -141,3 +141,6 @@ let change_status str =
   let* () = Curses.wrefresh s.swin |> curses_try in
   let* y, x = get_cords in
   mv y x
+
+let save_ctx = EditorSt.return ()
+let restore_ctx = EditorSt.return ()

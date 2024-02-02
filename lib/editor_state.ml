@@ -2,7 +2,13 @@ module TextBuffer = Text_buffer.Make (Gap_buffer)
 
 module Editor : sig
   type mode = Normal | Insert
-  type ctx = TextBuffer.t * int
+
+  type ctx = {
+    buffer : TextBuffer.t;
+    off : int;
+    cords : int * int;
+    screen_fname : string;
+  }
 
   type 'a gadt =
     | Mode : mode gadt
@@ -24,7 +30,13 @@ module Editor : sig
   val change : 'a gadt -> 'a -> t -> t
 end = struct
   type mode = Normal | Insert
-  type ctx = TextBuffer.t * int
+
+  type ctx = {
+    buffer : TextBuffer.t;
+    off : int;
+    cords : int * int;
+    screen_fname : string;
+  }
 
   type 'a gadt =
     | Mode : mode gadt
