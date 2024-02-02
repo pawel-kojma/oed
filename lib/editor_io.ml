@@ -6,7 +6,7 @@ let curses_try b = if b then EditorSt.return () else EditorSt.fail
 
 let normalize_cords (y, x) =
   let* s = EditorSt.get in
-  EditorSt.return (y - s.off, x - s.off)
+  EditorSt.return (y - s.off, x)
 
 let get_cords =
   let* s = EditorSt.get in
@@ -34,7 +34,7 @@ let putstryx y x str =
 let scroll_down =
   let* s = EditorSt.get in
   let line = TextBuffer.get_line s.buffer in
-  let* () = Curses.wscrl s.mwin (-1) |> curses_try in
+  let* () = Curses.wscrl s.mwin 1 |> curses_try in
   let* maxy, _ = getmaxyx in
   let* () = mv (maxy - 1) 0 in
   let* () = Curses.waddstr s.mwin line |> curses_try in
@@ -45,7 +45,7 @@ let scroll_down =
 let scroll_up =
   let* s = EditorSt.get in
   let line = TextBuffer.get_line s.buffer in
-  let* () = Curses.wscrl s.mwin 1 |> curses_try in
+  let* () = Curses.wscrl s.mwin (-1) |> curses_try in
   let* () = mv 0 0 in
   let* () = Curses.waddstr s.mwin line |> curses_try in
   let* () = EditorSt.change Off (s.off - 1) in
@@ -72,14 +72,9 @@ let inskey key =
   let* s = EditorSt.get in
   let n = TextBuffer.insert key s.buffer in
   let* () = EditorSt.change Buffer n in
-  let* y, x = get_cords in
-  let* maxy, maxx = getmaxyx in
-  if y >= maxy then
-    let* () = scroll_down in
-    let* () = Curses.winsch s.mwin (int_of_char key) |> curses_try in
-    let* y, x = get_cords in
-    mv y x
-  else if x >= maxx then failwith "line-wrap insert not implemented"
+  let* _, x = get_cords in
+  let* _, maxx = getmaxyx in
+  if x >= maxx then failwith "line-wrap insert not implemented"
   else
     let* () = Curses.winsch s.mwin (int_of_char key) |> curses_try in
     let* y, x = get_cords in
@@ -92,11 +87,13 @@ let enter =
   let line = TextBuffer.get_line n in
   let* y, x = get_cords in
   let* maxy, _ = getmaxyx in
-  if y - 1 = maxy then
-    let* () = mv y x in
+  if y + 1 = maxy then
     let () = Curses.wclrtoeol s.mwin in
+    let* () = mv y x in
     putstryx y x line
-  else if y >= maxy then scroll_down
+  else if y >= maxy then
+    let () = Curses.wclrtoeol s.mwin in
+    scroll_down
   else
     let () = Curses.wclrtoeol s.mwin in
     let* () = mv y x in
@@ -119,7 +116,7 @@ let backspace =
         putstryx y x line
       else
         let* maxy, _ = getmaxyx in
-        match TextBuffer.nth_next_line (maxy - y) s.buffer with
+        match TextBuffer.nth_next_line (maxy - y - 1) s.buffer with
         | None ->
             let* y, x = get_cords in
             putstryx y x line
