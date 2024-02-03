@@ -3,9 +3,9 @@ opam-version: "2.0"
 synopsis: "A short synopsis"
 description: "A longer description"
 maintainer: ["Maintainer Name"]
-authors: ["Author Name"]
-license: "LICENSE"
-tags: ["topics" "to describe" "your" "project"]
+authors: ["pawel-kojma"]
+license: "MIT"
+tags: ["text-editor"]
 homepage: "https://github.com/pawel-kojma/oed"
 doc: "https://url/to/documentation"
 bug-reports: "https://github.com/pawel-kojma/oed/issues"
