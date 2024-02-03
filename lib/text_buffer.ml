@@ -177,8 +177,9 @@ module Make (DS : TextEditDataStructure) = struct
 
   let get_lines n (c, i, s) =
     let rec _get_lines acc n (c, i, s) =
-    if n <= 0 then List.rev acc
-      else if DS.move_right i |> DS.is_end then get_line (c, i, s) :: acc |> List.rev
+      if n <= 0 then List.rev acc
+      else if DS.move_right i |> DS.is_end then
+        get_line (c, i, s) :: acc |> List.rev
       else _get_lines (get_line (c, i, s) :: acc) (n - 1) (down (c, i, s))
     in
     _get_lines [] n (c, i, s)

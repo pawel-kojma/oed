@@ -1,4 +1,5 @@
 open Editor_state
+module History = Gap_buffer
 module TextBuffer = Text_buffer.Make (Gap_buffer)
 
 let ( let* ) = EditorSt.bind
@@ -142,11 +143,15 @@ let change_status str =
   let* y, x = get_cords in
   mv y x
 
-let save_ctx = EditorSt.return ()
-let restore_ctx = EditorSt.return ()
+let save_ctx =
+  let* s = EditorSt.get in
+  let* cords = get_cords in
+  let ctx : Editor.ctx = { buffer = s.buffer; off = s.off; cords } in
+  EditorSt.change History (History.insert_before ctx s.history)
 
 let refresh_screen =
   let* s = EditorSt.get in
+  let () = Curses.werase s.mwin in
   let rec _up_n n c = if n <= 0 then c else _up_n (n - 1) (TextBuffer.up c) in
   let* y, _ = getyx in
   let* maxy, _ = getmaxyx in
@@ -159,3 +164,52 @@ let refresh_screen =
       lines
   in
   Curses.wrefresh s.mwin |> curses_try
+
+let restore_ctx (ctx : Editor.ctx) =
+  let y, x = ctx.cords in
+  let* () = EditorSt.change Buffer ctx.buffer in
+  let* () = EditorSt.change Off ctx.off in
+  let* () = mv y x in
+  refresh_screen
+
+let input_subwin =
+  let rec _input_loop () =
+    let* s = EditorSt.get in
+    match Curses.wgetch s.mwin |> Key.convert Insert with
+    | NonSpecialKeyI key ->
+        let* () = inskey (char_of_int key) in
+        _input_loop ()
+    | SpecialKeyI key -> (
+        match key with
+        | Enter -> EditorSt.return (TextBuffer.decompose s.buffer)
+        | Backspace ->
+            let* () = backspace in
+            _input_loop ()
+        | _ -> _input_loop ())
+  in
+  let* s = EditorSt.get in
+  let state : Editor.t =
+    {
+      fname = None;
+      mode = Insert;
+      buffer = TextBuffer.build "";
+      history = Gap_buffer.empty;
+      mwin = s.swin;
+      swin = s.swin;
+      off = 0;
+    }
+  in
+  match EditorSt.run state (_input_loop ()) with
+  | Some s -> EditorSt.return s
+  | None -> failwith "input_loop"
+
+let save_buffer =
+  let _save buf fname =
+    TextBuffer.decompose buf |> File.write_file fname |> EditorSt.return
+  in
+  let* s = EditorSt.get in
+  match s.fname with
+  | None ->
+      let* fname = input_subwin in
+      _save s.buffer fname
+  | Some fname -> _save s.buffer fname

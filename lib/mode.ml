@@ -58,18 +58,23 @@ let normal_action key =
       | Quit -> EditorSt.return false
       | Save ->
           let* () = Editor_io.save_ctx in
+          let* () = Editor_io.save_buffer in
           EditorSt.return true
-      | Undo ->
-          if History.is_begin s.history then EditorSt.return true
-          else
-            let* () = EditorSt.change History (History.move_left s.history) in
-            let* () = Editor_io.restore_ctx in
-            EditorSt.return true
-      | Redo ->
-          if History.is_end s.history then EditorSt.return true
-          else
-            let* () = EditorSt.change History (History.move_right s.history) in
-            let* () = Editor_io.restore_ctx in
-            EditorSt.return true
+      | Undo -> (
+          match History.elem_before s.history with
+          | None -> EditorSt.return true
+          | Some ctx ->
+              let* () = Editor_io.restore_ctx ctx in
+              let* () = EditorSt.change History (History.move_left s.history) in
+              EditorSt.return true)
+      | Redo -> (
+          match History.elem_at s.history with
+          | None -> EditorSt.return true
+          | Some ctx ->
+              let* () = Editor_io.restore_ctx ctx in
+              let* () =
+                EditorSt.change History (History.move_right s.history)
+              in
+              EditorSt.return true)
       | _ -> EditorSt.return true)
   | NonSpecialKeyN _ -> EditorSt.return true

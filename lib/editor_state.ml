@@ -2,13 +2,7 @@ module TextBuffer = Text_buffer.Make (Gap_buffer)
 
 module Editor : sig
   type mode = Normal | Insert
-
-  type ctx = {
-    buffer : TextBuffer.t;
-    off : int;
-    cords : int * int;
-    screen_fname : string;
-  }
+  type ctx = { buffer : TextBuffer.t; off : int; cords : int * int }
 
   type 'a gadt =
     | Fname : string option gadt
@@ -32,13 +26,7 @@ module Editor : sig
   val change : 'a gadt -> 'a -> t -> t
 end = struct
   type mode = Normal | Insert
-
-  type ctx = {
-    buffer : TextBuffer.t;
-    off : int;
-    cords : int * int;
-    screen_fname : string;
-  }
+  type ctx = { buffer : TextBuffer.t; off : int; cords : int * int }
 
   type 'a gadt =
     | Fname : string option gadt
@@ -159,6 +147,9 @@ end) : sig
 
   (* try-catch *)
   val catch : 'a t -> (unit -> 'a t) -> 'a t
+
+  (* iterate over list, applying enumerated function,
+     each with same state, discarding result *)
   val iteriM : (int -> 'a -> unit t) -> 'a list -> unit t
 end = struct
   (* Obliczenie reprezentujemy jako funkcję z bieżącej wartości stanu w opcjonalną parę
