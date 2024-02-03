@@ -275,3 +275,28 @@ let%expect_test "cords_5" =
   let y, x = T.(build "abra\ncadabra" |> down |> remove |> to_cords) in
   Printf.printf "%d %d" x y;
   [%expect {| 4 0 |}]
+
+let%expect_test "get_lines_1" =
+  List.iter (Printf.printf "\"%s\"\n")
+    T.(build "pierwsza\ndruga" |> get_lines 10);
+  [%expect {|
+    "pierwsza"
+    "druga" |}]
+
+let%expect_test "get_lines_2" =
+  List.iter (Printf.printf "\"%s\"\n")
+    T.(build "pierwsza\ndruga\n" |> get_lines 10);
+  [%expect {|
+    "pierwsza"
+    "druga"
+    "" |}]
+
+let%expect_test "get_lines_3" =
+  List.iter (Printf.printf "\"%s\"\n")
+    T.(build "pierwsza\ndruga\ntrzecia" |> down |> get_lines 1);
+  [%expect {| "druga" |}]
+
+let%expect_test "get_lines_4" =
+  List.iter (Printf.printf "\"%s\"\n")
+    T.(build "pierwsza\ndruga\ntrzecia" |> down |> get_lines 0);
+  [%expect {||}]

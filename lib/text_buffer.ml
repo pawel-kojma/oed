@@ -57,6 +57,7 @@ module type S = sig
   val next_line : t -> string option
   val get_line : t -> string
   val nth_next_line : int -> t -> string option
+  val get_lines : int -> t -> string list
   val debug_view : t -> char list * int list * int
 end
 
@@ -173,6 +174,14 @@ module Make (DS : TextEditDataStructure) = struct
     else
       let ll = line_length ni in
       Some (DS.copy_n ll (DS.move_right_n sl c) |> DS.to_list |> string_of_list)
+
+  let get_lines n (c, i, s) =
+    let rec _get_lines acc n (c, i, s) =
+    if n <= 0 then List.rev acc
+      else if DS.move_right i |> DS.is_end then get_line (c, i, s) :: acc |> List.rev
+      else _get_lines (get_line (c, i, s) :: acc) (n - 1) (down (c, i, s))
+    in
+    _get_lines [] n (c, i, s)
 
   let get_at_cursor (c, _, _) = DS.elem_at c
   let get_before_cursor (c, _, _) = DS.elem_before c

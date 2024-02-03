@@ -5,6 +5,22 @@ open Oed.Editor_state
 
 let ( let* ) = EditorSt.bind
 
+let prepare_state (mainw, subw) : Editor.t =
+  let file, contents =
+    if Array.length Sys.argv > 1 then
+      (Some Sys.argv.(1), File.read_file Sys.argv.(1))
+    else (None, "")
+  in
+  {
+    fname = file;
+    mode = Normal;
+    buffer = TextBuffer.build contents;
+    history = Gap_buffer.empty;
+    mwin = mainw;
+    swin = subw;
+    off = 0;
+  }
+
 let rec main_handler :
     type a. (a -> bool EditorSt.t) -> a Key.keyset -> unit EditorSt.t =
  fun f x ->
@@ -19,6 +35,11 @@ and main_loop () =
   | Normal -> main_handler Mode.normal_action Normal
   | Insert -> main_handler Mode.insert_action Insert
 
+let init =
+  let* () = Editor_io.refresh_screen in
+  let* () = Editor_io.change_status "--NORMAL--" in
+  main_loop ()
+
 let () =
   let _w = Curses.initscr () in
   let maxy, maxx = Curses.getmaxyx _w in
@@ -31,17 +52,8 @@ let () =
   assert (Curses.keypad w_main true);
   assert (Curses.keypad w_sub true);
   Curses.scrollok w_main true;
-  let state : Editor.t =
-    {
-      mode = Normal;
-      buffer = TextBuffer.build "";
-      history = Gap_buffer.empty;
-      mwin = w_main;
-      swin = w_sub;
-      off = 0;
-    }
-  in
-  match EditorSt.run state (main_loop ()) with
+  let state : Editor.t = prepare_state (w_main, w_sub) in
+  match EditorSt.run state init with
   | Some () ->
       Curses.endwin ();
       ()

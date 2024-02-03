@@ -11,6 +11,7 @@ module Editor : sig
   }
 
   type 'a gadt =
+    | Fname : string option gadt
     | Mode : mode gadt
     | Buffer : TextBuffer.t gadt
     | History : ctx Gap_buffer.t gadt
@@ -19,6 +20,7 @@ module Editor : sig
     | Off : int gadt
 
   type t = {
+    fname : string option;
     mode : mode;
     buffer : TextBuffer.t;
     history : ctx Gap_buffer.t;
@@ -39,6 +41,7 @@ end = struct
   }
 
   type 'a gadt =
+    | Fname : string option gadt
     | Mode : mode gadt
     | Buffer : TextBuffer.t gadt
     | History : ctx Gap_buffer.t gadt
@@ -47,6 +50,7 @@ end = struct
     | Off : int gadt
 
   type t = {
+    fname : string option;
     mode : mode;
     buffer : TextBuffer.t;
     history : ctx Gap_buffer.t;
@@ -66,6 +70,7 @@ end = struct
           mwin = s.mwin;
           swin = s.swin;
           off = s.off;
+          fname = s.fname;
         }
     | Buffer ->
         {
@@ -75,6 +80,7 @@ end = struct
           mwin = s.mwin;
           swin = s.swin;
           off = s.off;
+          fname = s.fname;
         }
     | History ->
         {
@@ -84,6 +90,7 @@ end = struct
           mwin = s.mwin;
           swin = s.swin;
           off = s.off;
+          fname = s.fname;
         }
     | MainWindow ->
         {
@@ -93,6 +100,7 @@ end = struct
           mwin = el;
           swin = s.swin;
           off = s.off;
+          fname = s.fname;
         }
     | SubWindow ->
         {
@@ -102,6 +110,7 @@ end = struct
           mwin = s.mwin;
           swin = el;
           off = s.off;
+          fname = s.fname;
         }
     | Off ->
         {
@@ -111,6 +120,17 @@ end = struct
           mwin = s.mwin;
           swin = s.swin;
           off = el;
+          fname = s.fname;
+        }
+    | Fname ->
+        {
+          mode = s.mode;
+          buffer = s.buffer;
+          history = s.history;
+          mwin = s.mwin;
+          swin = s.swin;
+          off = s.off;
+          fname = el;
         }
 end
 
@@ -139,6 +159,7 @@ end) : sig
 
   (* try-catch *)
   val catch : 'a t -> (unit -> 'a t) -> 'a t
+  val iteriM : (int -> 'a -> unit t) -> 'a list -> unit t
 end = struct
   (* Obliczenie reprezentujemy jako funkcję z bieżącej wartości stanu w opcjonalną parę
    * wynik-nowy stan *)
@@ -155,6 +176,13 @@ end = struct
 
   let fail _ = None
   let catch m f s = match m s with Some (x, s) -> Some (x, s) | None -> f () s
+
+  let iteriM f lst s =
+    return
+      (List.iteri
+         (fun i str -> match f i str s with None -> () | Some (x, _) -> x)
+         lst)
+      s
 end
 
 module EditorSt = St (Editor)

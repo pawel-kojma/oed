@@ -144,3 +144,18 @@ let change_status str =
 
 let save_ctx = EditorSt.return ()
 let restore_ctx = EditorSt.return ()
+
+let refresh_screen =
+  let* s = EditorSt.get in
+  let rec _up_n n c = if n <= 0 then c else _up_n (n - 1) (TextBuffer.up c) in
+  let* y, _ = getyx in
+  let* maxy, _ = getmaxyx in
+  let lines = TextBuffer.get_lines maxy (_up_n y s.buffer) in
+  let* () =
+    EditorSt.iteriM
+      (fun i line ->
+        let* () = mv i 0 in
+        Curses.waddstr s.mwin line |> curses_try)
+      lines
+  in
+  Curses.wrefresh s.mwin |> curses_try

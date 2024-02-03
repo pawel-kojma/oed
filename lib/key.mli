@@ -18,4 +18,3 @@ type insert_keyset = SpecialKeyI of specialI | NonSpecialKeyI of int
 type _ keyset = Normal : normal_keyset keyset | Insert : insert_keyset keyset
 
 val convert : 'a keyset -> int -> 'a
-
