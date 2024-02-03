@@ -151,11 +151,11 @@ let save_ctx =
 
 let refresh_screen =
   let* s = EditorSt.get in
-  let () = Curses.werase s.mwin in
   let rec _up_n n c = if n <= 0 then c else _up_n (n - 1) (TextBuffer.up c) in
   let* y, _ = getyx in
   let* maxy, _ = getmaxyx in
   let lines = TextBuffer.get_lines maxy (_up_n y s.buffer) in
+  let () = Curses.wclear s.mwin in
   let* () =
     EditorSt.iteriM
       (fun i line ->

@@ -7,20 +7,20 @@
 (source
  (github pawel-kojma/oed))
 
-(authors "Author Name")
+(authors "pawel-kojma")
 
-(maintainers "Maintainer Name")
+(maintainers "pawel-kojma")
 
-(license LICENSE)
+(license MIT)
 
 (documentation https://url/to/documentation)
 
 (package
  (name oed)
  (synopsis "A short synopsis")
- (description "A longer description")
+ (description "Ocaml text editor")
  (depends ocaml dune curses)
  (tags
-  (topics "to describe" your project)))
+  (text-editor)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
