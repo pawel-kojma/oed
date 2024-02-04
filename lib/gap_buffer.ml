@@ -6,8 +6,7 @@ let empty = (Start, [])
 let of_list lst = (Start, lst)
 let drop_after (ctx, _) = (ctx, [])
 let drop_before (_, lst) = (Start, lst)
-
-let elements_after (_,lst) = List.length lst
+let elements_after (_, lst) = List.length lst
 
 let rec to_list (ctx, lst) =
   match ctx with Start -> lst | Right (ctx, el) -> to_list (ctx, el :: lst)

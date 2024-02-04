@@ -65,8 +65,11 @@ let normal_action key =
           EditorSt.return true
       | Quit -> EditorSt.return false
       | Save ->
-          let* () = Editor_io.save_buffer in
-          EditorSt.return true
+          let* saved_success = Editor_io.save_buffer in
+          if saved_success then
+            let* () = Editor_io.log_subwindow "File Saved" in
+            EditorSt.return true
+          else EditorSt.return true
       | Undo -> (
           match History.elem_before (History.move_left s.history) with
           | None ->

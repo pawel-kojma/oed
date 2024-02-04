@@ -192,27 +192,33 @@ let input_subwin =
     | SpecialKeyI key -> (
         match key with
         | Enter -> EditorSt.return (TextBuffer.decompose s.buffer)
+        | Escape -> EditorSt.fail
         | Backspace ->
             let* () = backspace in
             _input_loop ()
         | _ -> _input_loop ())
   in
   let* s = EditorSt.get in
+  let* _, maxx = getmaxyx in
+  let* () = log_subwindow "File name:" in
+  let dwin = Curses.derwin s.swin 1 (maxx - 12) 1 12 in
+  assert (Curses.intrflush dwin false);
+  assert (Curses.keypad dwin true);
   let state : Editor.t =
     {
       fname = None;
       mode = Insert;
       buffer = TextBuffer.build "";
       history = Gap_buffer.empty;
-      mwin = s.swin;
+      mwin = dwin;
       swin = s.swin;
       off = 0;
       was_edited = false;
     }
   in
-  match EditorSt.run state (_input_loop ()) with
-  | Some s -> EditorSt.return s
-  | None -> failwith "input_loop"
+  let r = EditorSt.run state (_input_loop ()) in
+  let* () = Curses.delwin dwin |> curses_try in
+  EditorSt.return r
 
 let save_buffer =
   let _save buf fname =
@@ -220,7 +226,13 @@ let save_buffer =
   in
   let* s = EditorSt.get in
   match s.fname with
-  | None ->
+  | None -> (
       let* fname = input_subwin in
-      _save s.buffer fname
-  | Some fname -> _save s.buffer fname
+      match fname with
+      | None -> EditorSt.return false
+      | Some fname ->
+          let* () = _save s.buffer fname in
+          EditorSt.return true)
+  | Some fname ->
+      let* () = _save s.buffer fname in
+      EditorSt.return true
