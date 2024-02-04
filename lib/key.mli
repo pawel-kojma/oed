@@ -10,6 +10,7 @@ type specialN =
   | Redo
   | Save
   | Quit
+  | I
   | Ctrl_c
 
 type specialI = Enter | Backspace | Up | Down | Left | Right | Escape

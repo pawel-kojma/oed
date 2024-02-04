@@ -59,7 +59,7 @@ let normal_action key =
       | Right ->
           let* () = Editor_io.right in
           EditorSt.return true
-      | Escape ->
+      | (Escape | I) ->
           let* () = EditorSt.change Mode Insert in
           let* () = Editor_io.change_status "--INSERT--" in
           EditorSt.return true

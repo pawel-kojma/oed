@@ -10,6 +10,7 @@ type specialN =
   | Redo
   | Save
   | Quit
+  | I
   | Ctrl_c
 
 type specialI = Enter | Backspace | Up | Down | Left | Right | Escape
@@ -39,6 +40,7 @@ let convert_normal = function
   | 114 -> SpecialKeyN Redo
   | 83 -> SpecialKeyN Save
   | 81 -> SpecialKeyN Quit
+  | 105 -> SpecialKeyN I
   | x -> NonSpecialKeyN x
 
 let convert : type a. a keyset -> int -> a =
