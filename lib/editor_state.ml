@@ -12,6 +12,7 @@ module Editor : sig
     | MainWindow : Curses.window gadt
     | SubWindow : Curses.window gadt
     | Off : int gadt
+    | Was_edited : bool gadt
 
   type t = {
     fname : string option;
@@ -21,6 +22,7 @@ module Editor : sig
     mwin : Curses.window;
     swin : Curses.window;
     off : int;
+    was_edited : bool;
   }
 
   val change : 'a gadt -> 'a -> t -> t
@@ -36,6 +38,7 @@ end = struct
     | MainWindow : Curses.window gadt
     | SubWindow : Curses.window gadt
     | Off : int gadt
+    | Was_edited : bool gadt
 
   type t = {
     fname : string option;
@@ -45,6 +48,7 @@ end = struct
     mwin : Curses.window;
     swin : Curses.window;
     off : int;
+    was_edited : bool;
   }
 
   let change : type a. a gadt -> a -> t -> t =
@@ -59,6 +63,7 @@ end = struct
           swin = s.swin;
           off = s.off;
           fname = s.fname;
+          was_edited = s.was_edited;
         }
     | Buffer ->
         {
@@ -69,6 +74,7 @@ end = struct
           swin = s.swin;
           off = s.off;
           fname = s.fname;
+          was_edited = s.was_edited;
         }
     | History ->
         {
@@ -79,6 +85,7 @@ end = struct
           swin = s.swin;
           off = s.off;
           fname = s.fname;
+          was_edited = s.was_edited;
         }
     | MainWindow ->
         {
@@ -89,6 +96,7 @@ end = struct
           swin = s.swin;
           off = s.off;
           fname = s.fname;
+          was_edited = s.was_edited;
         }
     | SubWindow ->
         {
@@ -99,6 +107,7 @@ end = struct
           swin = el;
           off = s.off;
           fname = s.fname;
+          was_edited = s.was_edited;
         }
     | Off ->
         {
@@ -109,6 +118,7 @@ end = struct
           swin = s.swin;
           off = el;
           fname = s.fname;
+          was_edited = s.was_edited;
         }
     | Fname ->
         {
@@ -119,6 +129,18 @@ end = struct
           swin = s.swin;
           off = s.off;
           fname = el;
+          was_edited = s.was_edited;
+        }
+    | Was_edited ->
+        {
+          mode = s.mode;
+          buffer = s.buffer;
+          history = s.history;
+          mwin = s.mwin;
+          swin = s.swin;
+          off = s.off;
+          fname = s.fname;
+          was_edited = el;
         }
 end
 

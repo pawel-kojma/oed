@@ -132,6 +132,15 @@ let backspace =
       let* () = Curses.mvwdelch s.mwin y x |> curses_try in
       mv y x
 
+let log_subwindow str =
+  let* s = EditorSt.get in
+  let* () = Curses.wmove s.swin 1 0 |> curses_try in
+  let () = Curses.wclrtoeol s.swin in
+  let* () = Curses.waddstr s.swin str |> curses_try in
+  let* () = Curses.wrefresh s.swin |> curses_try in
+  let* y, x = get_cords in
+  mv y x
+
 let change_status str =
   let* s = EditorSt.get in
   let* () = Curses.wmove s.swin 0 0 |> curses_try in
@@ -147,7 +156,8 @@ let save_ctx =
   let* s = EditorSt.get in
   let* cords = get_cords in
   let ctx : Editor.ctx = { buffer = s.buffer; off = s.off; cords } in
-  EditorSt.change History (History.insert_before ctx s.history)
+  History.insert_before ctx s.history
+  |> History.drop_after |> EditorSt.change History
 
 let refresh_screen =
   let* s = EditorSt.get in
@@ -197,6 +207,7 @@ let input_subwin =
       mwin = s.swin;
       swin = s.swin;
       off = 0;
+      was_edited = false;
     }
   in
   match EditorSt.run state (_input_loop ()) with

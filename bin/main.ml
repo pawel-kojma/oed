@@ -19,6 +19,7 @@ let prepare_state (mainw, subw) : Editor.t =
     mwin = mainw;
     swin = subw;
     off = 0;
+    was_edited = false;
   }
 
 let rec main_handler :
