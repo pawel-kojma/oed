@@ -59,7 +59,7 @@ let normal_action key =
       | Right ->
           let* () = Editor_io.right in
           EditorSt.return true
-      | (Escape | I) ->
+      | Escape | I ->
           let* () = EditorSt.change Mode Insert in
           let* () = Editor_io.change_status "--INSERT--" in
           EditorSt.return true
@@ -68,7 +68,7 @@ let normal_action key =
           let* () = Editor_io.save_buffer in
           EditorSt.return true
       | Undo -> (
-          match History.elem_before s.history with
+          match History.elem_before (History.move_left s.history) with
           | None ->
               let* () = Editor_io.log_subwindow "Already at oldest change" in
               EditorSt.return true

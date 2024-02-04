@@ -38,6 +38,7 @@ and main_loop () =
 
 let init =
   let* () = Editor_io.refresh_screen in
+  let* () = Editor_io.save_ctx in
   let* () = Editor_io.change_status "--NORMAL--" in
   main_loop ()
 
