@@ -236,6 +236,7 @@ let save_buffer =
       match fname with
       | None -> EditorSt.return false
       | Some fname ->
+          let* () = EditorSt.change Fname (Some fname) in
           let* () = _save s.buffer fname in
           EditorSt.return true)
   | Some fname ->
