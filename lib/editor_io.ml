@@ -152,6 +152,11 @@ let change_status str =
   let* y, x = get_cords in
   mv y x
 
+let maybe_insert_key key =
+  try inskey (char_of_int key)
+  with Invalid_argument _ ->
+    log_subwindow ("No binding for key: " ^ (Curses.keyname key))
+
 let save_ctx =
   let* s = EditorSt.get in
   let* cords = get_cords in
@@ -187,7 +192,7 @@ let input_subwin =
     let* s = EditorSt.get in
     match Curses.wgetch s.mwin |> Key.convert Insert with
     | NonSpecialKeyI key ->
-        let* () = inskey (char_of_int key) in
+        let* () = maybe_insert_key key in
         _input_loop ()
     | SpecialKeyI key -> (
         match key with
@@ -202,8 +207,8 @@ let input_subwin =
   let* _, maxx = getmaxyx in
   let* () = log_subwindow "File name:" in
   let dwin = Curses.derwin s.swin 1 (maxx - 12) 1 12 in
-  assert (Curses.intrflush dwin false);
-  assert (Curses.keypad dwin true);
+  let* () = Curses.intrflush dwin false |> curses_try in
+  let* () = Curses.keypad dwin true |> curses_try in
   let state : Editor.t =
     {
       fname = None;

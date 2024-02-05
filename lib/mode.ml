@@ -38,7 +38,7 @@ let insert_action key =
             EditorSt.return true
           else EditorSt.return true)
   | NonSpecialKeyI key ->
-      let* () = Editor_io.inskey (char_of_int key) in
+      let* () = Editor_io.maybe_insert_key key in
       let* () = EditorSt.change Was_edited true in
       EditorSt.return true
 
