@@ -13,7 +13,7 @@ $ opam install .
 Executable should be under `./_build/default/bin/main.exe`
 ```bash
 $ opam install curses
-$ dune build
+$ dune build @install
 ```
 ## Usage
 Editor supports `Normal` (N) and `Insert` (I) mode with following keybinds: <br/>
