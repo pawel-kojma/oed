@@ -81,8 +81,7 @@ let inskey key =
     let* y, x = get_cords in
     mv y x
 
-let tab = 
-    List.init 4 (fun _ -> ' ') |> EditorSt.iteriM (fun _ s -> inskey s)
+let tab = List.init 4 (fun _ -> ' ') |> EditorSt.foldM (fun _ s -> inskey s) ()
 
 let enter =
   let* s = EditorSt.get in
