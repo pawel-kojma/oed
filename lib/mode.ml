@@ -9,6 +9,12 @@ let insert_action key =
   match key with
   | SpecialKeyI key -> (
       match key with
+      | Tab ->
+          let* () = Editor_io.tab in
+          EditorSt.return true
+      | Delete ->
+          let* () = Editor_io.delete in
+          EditorSt.return true
       | Backspace ->
           let* () = Editor_io.backspace in
           let* () = EditorSt.change Was_edited true in
