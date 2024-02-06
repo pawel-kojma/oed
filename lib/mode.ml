@@ -9,6 +9,12 @@ let insert_action key =
   match key with
   | SpecialKeyI key -> (
       match key with
+      | Tab ->
+          let* () = Editor_io.tab in
+          EditorSt.return true
+      | Delete ->
+          let* () = Editor_io.delete in
+          EditorSt.return true
       | Backspace ->
           let* () = Editor_io.backspace in
           let* () = EditorSt.change Was_edited true in
@@ -99,5 +105,11 @@ let normal_action key =
                 |> Editor_io.log_subwindow
               in
               EditorSt.return true)
+      | Shift_a ->
+          let* () = Editor_io.goto_end in
+          EditorSt.return true
+      | Shift_i ->
+          let* () = Editor_io.goto_start in
+          EditorSt.return true
       | _ -> EditorSt.return true)
   | NonSpecialKeyN _ -> EditorSt.return true

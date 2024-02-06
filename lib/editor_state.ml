@@ -173,6 +173,9 @@ end) : sig
   (* iterate over list, applying enumerated function,
      each with same state, discarding result *)
   val iteriM : (int -> 'a -> unit t) -> 'a list -> unit t
+
+  (* like normal fold, but with monad expressions *)
+  val foldM : ('a -> 'b -> 'a t) -> 'a -> 'b list -> 'a t
 end = struct
   (* Obliczenie reprezentujemy jako funkcję z bieżącej wartości stanu w opcjonalną parę
    * wynik-nowy stan *)
@@ -189,13 +192,21 @@ end = struct
 
   let fail _ = None
   let catch m f s = match m s with Some (x, s) -> Some (x, s) | None -> f () s
+  let ( let* ) = bind
 
   let iteriM f lst s =
     return
       (List.iteri
-         (fun i str -> match f i str s with None -> () | Some (x, _) -> x)
+         (fun i el -> match f i el s with None -> () | Some (x, _) -> x)
          lst)
       s
+
+  let rec foldM f acc lst =
+    match lst with
+    | [] -> return acc
+    | hd :: tl ->
+        let* a = f acc hd in
+        foldM f a tl
 end
 
 module EditorSt = St (Editor)

@@ -12,8 +12,10 @@ type specialN =
   | Quit
   | I
   | Ctrl_c
+  | Shift_i
+  | Shift_a 
 
-type specialI = Enter | Backspace | Up | Down | Left | Right | Escape
+type specialI = Enter | Backspace | Up | Down | Left | Right | Escape | Delete | Tab
 type normal_keyset = SpecialKeyN of specialN | NonSpecialKeyN of int
 type insert_keyset = SpecialKeyI of specialI | NonSpecialKeyI of int
 type _ keyset = Normal : normal_keyset keyset | Insert : insert_keyset keyset
@@ -24,6 +26,8 @@ let convert_insert = function
   | x when x == Curses.Key.left -> SpecialKeyI Left
   | x when x == Curses.Key.right -> SpecialKeyI Right
   | x when x == Curses.Key.backspace -> SpecialKeyI Backspace
+  | x when x == Curses.Key.dc -> SpecialKeyI Delete
+  | 9 -> SpecialKeyI Tab
   | 10 -> SpecialKeyI Enter
   | 27 -> SpecialKeyI Escape
   | x -> NonSpecialKeyI x
@@ -41,6 +45,8 @@ let convert_normal = function
   | 83 -> SpecialKeyN Save
   | 81 -> SpecialKeyN Quit
   | 105 -> SpecialKeyN I
+  | 65 -> SpecialKeyN Shift_a
+  | 73 -> SpecialKeyN Shift_i
   | x -> NonSpecialKeyN x
 
 let convert : type a. a keyset -> int -> a =

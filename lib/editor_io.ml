@@ -81,6 +81,8 @@ let inskey key =
     let* y, x = get_cords in
     mv y x
 
+let tab = List.init 4 (fun _ -> ' ') |> EditorSt.foldM (fun _ s -> inskey s) ()
+
 let enter =
   let* s = EditorSt.get in
   let n = TextBuffer.insert '\n' s.buffer in
@@ -132,6 +134,28 @@ let backspace =
       let* () = Curses.mvwdelch s.mwin y x |> curses_try in
       mv y x
 
+let delete =
+  let* s = EditorSt.get in
+  match TextBuffer.get_at_cursor s.buffer with
+  | None -> EditorSt.return ()
+  | Some _ ->
+      let* () = EditorSt.change Buffer (TextBuffer.right_always s.buffer) in
+      let* y, x = get_cords in
+      let* () = mv y x in
+      backspace
+
+let goto_start =
+  let* s = EditorSt.get in
+  let* () = EditorSt.change Buffer (TextBuffer.move_to_start s.buffer) in
+  let* y, x = get_cords in
+  mv y x
+
+let goto_end =
+  let* s = EditorSt.get in
+  let* () = EditorSt.change Buffer (TextBuffer.move_to_end s.buffer) in
+  let* y, x = get_cords in
+  mv y x
+
 let log_subwindow str =
   let* s = EditorSt.get in
   let* () = Curses.wmove s.swin 1 0 |> curses_try in
@@ -155,7 +179,7 @@ let change_status str =
 let maybe_insert_key key =
   try inskey (char_of_int key)
   with Invalid_argument _ ->
-    log_subwindow ("No binding for key: " ^ (Curses.keyname key))
+    log_subwindow ("No binding for key: " ^ Curses.keyname key)
 
 let save_ctx =
   let* s = EditorSt.get in
