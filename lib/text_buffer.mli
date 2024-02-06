@@ -50,6 +50,9 @@ module type S = sig
   val right : t -> t
   val up : t -> t
   val down : t -> t
+    val left_always : t -> t
+  val right_always : t -> t
+
   val prev_nl_off : t -> (int, int) Either.t
   val next_nl_off : t -> (int, int) Either.t
   val get_at_cursor : t -> char option

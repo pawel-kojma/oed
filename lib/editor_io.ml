@@ -139,7 +139,9 @@ let delete =
   match TextBuffer.get_at_cursor s.buffer with
   | None -> EditorSt.return ()
   | Some _ ->
-      let* () = EditorSt.change Buffer (TextBuffer.right s.buffer) in
+      let* () = EditorSt.change Buffer (TextBuffer.right_always s.buffer) in
+      let* y, x = get_cords in
+      let* () = mv y x in
       backspace
 
 let log_subwindow str =
