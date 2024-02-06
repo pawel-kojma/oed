@@ -144,6 +144,18 @@ let delete =
       let* () = mv y x in
       backspace
 
+let goto_start =
+  let* s = EditorSt.get in
+  let* () = EditorSt.change Buffer (TextBuffer.move_to_start s.buffer) in
+  let* y, x = get_cords in
+  mv y x
+
+let goto_end =
+  let* s = EditorSt.get in
+  let* () = EditorSt.change Buffer (TextBuffer.move_to_end s.buffer) in
+  let* y, x = get_cords in
+  mv y x
+
 let log_subwindow str =
   let* s = EditorSt.get in
   let* () = Curses.wmove s.swin 1 0 |> curses_try in

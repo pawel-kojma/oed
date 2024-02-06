@@ -12,6 +12,8 @@ type specialN =
   | Quit
   | I
   | Ctrl_c
+  | Shift_i
+  | Shift_a 
 
 type specialI = Enter | Backspace | Up | Down | Left | Right | Escape | Delete | Tab
 type normal_keyset = SpecialKeyN of specialN | NonSpecialKeyN of int
@@ -43,6 +45,8 @@ let convert_normal = function
   | 83 -> SpecialKeyN Save
   | 81 -> SpecialKeyN Quit
   | 105 -> SpecialKeyN I
+  | 65 -> SpecialKeyN Shift_a
+  | 73 -> SpecialKeyN Shift_i
   | x -> NonSpecialKeyN x
 
 let convert : type a. a keyset -> int -> a =

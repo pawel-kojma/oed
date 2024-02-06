@@ -54,6 +54,9 @@ module type S = sig
   val right_always : t -> t
   val prev_nl_off : t -> (int, int) Either.t
   val next_nl_off : t -> (int, int) Either.t
+    val move_to_start : t -> t
+  val move_to_end : t -> t
+
   val get_at_cursor : t -> char option
   val get_before_cursor : t -> char option
   val next_line : t -> string option
@@ -143,11 +146,16 @@ module Make (DS : TextEditDataStructure) = struct
     match DS.elem_at c with
     | Some ch when ch == '\n' ->
         let ri = DS.move_right i in
-        (DS.move_right c, ri,0)
+        (DS.move_right c, ri, 0)
     | _ -> right (c, i, s)
 
   let prev_nl_off (c, _, _) = DS.find_prev '\n' c
   let next_nl_off (c, _, _) = DS.find_next '\n' c
+  let move_to_start (c, i, s) = (DS.move_left_n s c, i, 0)
+
+  let move_to_end (c, i, s) =
+    let ll = line_length i in
+    (DS.move_right_n (ll - s) c, i, ll)
 
   let up (c, i, s) =
     if DS.is_begin i then (c, i, s)

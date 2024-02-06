@@ -105,5 +105,11 @@ let normal_action key =
                 |> Editor_io.log_subwindow
               in
               EditorSt.return true)
+      | Shift_a ->
+          let* () = Editor_io.goto_end in
+          EditorSt.return true
+      | Shift_i ->
+          let* () = Editor_io.goto_start in
+          EditorSt.return true
       | _ -> EditorSt.return true)
   | NonSpecialKeyN _ -> EditorSt.return true
