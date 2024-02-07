@@ -19,6 +19,7 @@ $ dune build @install
 Editor supports `Normal` (N) and `Insert` (I) mode with following keybinds: <br/>
 `Shift-s` (N) - save file<br/>
 `Shift-q` (N) - quit<br/>
+`Shift-i` and `Shift-a` (N) - go to start/end of a line <br/>
 `u` and `r` (N) - undo and redo edition history<br/>
 `Esc` and `i` (N) - enter insert mode<br/>
 `Esc` (I) - enter normal mode<br/>
